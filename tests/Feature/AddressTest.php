@@ -173,6 +173,24 @@ class AddressTest extends TestCase
     }
     public function testUpdateNotFound()
     {
+        $this->seed([UserSeeder::class, ContactSeeder::class, AddressSeeder::class]);
+        $address = Address::limit(1)->first();
 
+        $this->put('/api/contacts/'. $address->contact_id . '/addresses/' . ($address->id + 1), [
+                'street'=>'update',
+                'city'=>'update',
+                'province'=>'update',
+                'country'=>'update',
+                'postal_code'=>'22222'
+        ],
+        [
+            'Authorization'=>'test'
+        ])->assertStatus(404)->assertJson([
+            'errors'=> [
+                'message'=>[
+                    'not found'
+                ]
+            ]
+        ]);
     }
 }
