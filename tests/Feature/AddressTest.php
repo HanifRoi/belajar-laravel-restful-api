@@ -9,6 +9,7 @@ use Database\Seeders\ContactSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PhpParser\Node\Expr\FuncCall;
 use Tests\TestCase;
 
 class AddressTest extends TestCase
@@ -98,10 +99,10 @@ class AddressTest extends TestCase
         ->assertJson([
             'data' => [
                 'street'=>'test',
-            'city'=>'test',
-            'province'=>'test',
-            'country'=>'test',
-            'postal_code'=>'123123'
+                'city'=>'test',
+                'province'=>'test',
+                'country'=>'test',
+                'postal_code'=>'123123'
             ]
         ]);
     }
@@ -121,5 +122,57 @@ class AddressTest extends TestCase
                 ]
             ]
         ]);
+    }
+
+    public function testUpdateSuccess()
+    {
+        $this->seed([UserSeeder::class, ContactSeeder::class, AddressSeeder::class]);
+        $address = Address::limit(1)->first();
+
+        $this->put('/api/contacts/'. $address->contact_id . '/addresses/' . $address->id, [
+                'street'=>'update',
+                'city'=>'update',
+                'province'=>'update',
+                'country'=>'update',
+                'postal_code'=>'22222'
+        ],
+        [
+            'Authorization'=>'test'
+        ])->assertStatus(200)->assertJson([
+            'data'=> [
+                'street'=>'update',
+                'city'=>'update',
+                'province'=>'update',
+                'country'=>'update',
+                'postal_code'=>'22222'
+            ]
+        ]);
+    }
+
+    public function testUpdateFailed()
+    {
+        $this->seed([UserSeeder::class, ContactSeeder::class, AddressSeeder::class]);
+        $address = Address::limit(1)->first();
+
+        $this->put('/api/contacts/'. $address->contact_id . '/addresses/' . $address->id, [
+                'street'=>'update',
+                'city'=>'update',
+                'province'=>'update',
+                'country'=>'',
+                'postal_code'=>'22222'
+        ],
+        [
+            'Authorization'=>'test'
+        ])->assertStatus(400)->assertJson([
+            'errors'=> [
+                'country'=>[
+                    'The country field is required.'
+                ]
+            ]
+        ]);
+    }
+    public function testUpdateNotFound()
+    {
+
     }
 }
