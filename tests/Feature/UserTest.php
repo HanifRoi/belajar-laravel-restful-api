@@ -7,6 +7,7 @@ use Database\Seeders\UserSeeder;
 use Tests\TestCase;
 
 use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertNotEquals;
 use function PHPUnit\Framework\assertNotNull;
 
 class UserTest extends TestCase
@@ -156,5 +157,67 @@ class UserTest extends TestCase
                 ]
             ]
         ]);
+    }
+
+    public function testUpdateNameSuccess()
+    {
+        $this->seed(UserSeeder::class);
+        $oldUser = User::where('username', 'test')->first();
+        $this->withoutExceptionHandling()->patch('api/users/current', [
+            'name'=> 'Hanif'
+        ],
+        [
+            'Authorization' => 'test'
+        ])->assertStatus(200)
+        ->assertJson([
+            "data"=>[
+                "username"=>'test',
+                "name"=>'Hanif'
+            ]
+        ]);
+        $newUser = User::where('username', 'test')->first();
+
+        assertNotEquals($oldUser->name, $newUser->name);
+    }
+
+    public function testUpdatePasswordSuccess()
+    {
+        $this->seed(UserSeeder::class);
+        $oldUser = User::where('username', 'test')->first();
+        $this->withoutExceptionHandling()->patch('api/users/current', [
+            'password'=> 'baru'
+        ],
+        [
+            'Authorization' => 'test'
+        ])->assertStatus(200)
+        ->assertJson([
+            "data"=>[
+                "username"=>'test',
+                "name"=>'test'
+            ]
+        ]);
+        $newUser = User::where('username', 'test')->first();
+
+        assertNotEquals($oldUser->password, $newUser->password);
+    }
+
+    public function testUpdateFailed()
+    {
+        $this->seed(UserSeeder::class);
+       
+        $this->withoutExceptionHandling()->patch('api/users/current', [
+            'name'=> 'HanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanifHanif'
+        ],
+        [
+            'Authorization' => 'test'
+        ])->assertStatus(400)
+        ->assertJson([
+            "errors"=>[
+                "name"=>[
+                    "The name field must not be greater than 100 characters."
+                ]
+            ]
+        ]);
+        
     }
 }
